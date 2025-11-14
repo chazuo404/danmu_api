@@ -469,7 +469,9 @@ export async function matchAnime(url, req) {
     // 如果外语标题转换中文开关已开启，则尝试获取中文标题
     if (globals.titleToChinese) {
       // 如果title中包含.，则用空格替换
-      title = await getTMDBChineseTitle(title.replace('.', ' '), season, episode);
+      title = title.replace(/([.\s_]*(19\d{2}|20\d{2}|[0-9]{3,4}p|WEB|BluRay|Blu-ray|HDTV|DVDRip|BDRip|x264|x265|H\.?264|H\.?265|AAC|AC3|DDP|TrueHD|DTS|10bit|HDR|60FPS|S\d+E\d+|[a-zA-Z]+))$/i, '').trim();
+      title = await getTMDBChineseTitle(title.replace(/\./g, ' '), season, episode);
+
     }
 
     log("info", "Parsed title, season, episode", { title, season, episode });
