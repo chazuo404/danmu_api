@@ -473,13 +473,11 @@ if (match) {
   episode = null;
 }
 
-// 如果外语标题转换中文开关已开启，则尝试获取中文标题
-if (globals.titleToChinese) {
-  // 只替换点，不去掉其他信息（保留 SxxEyy）
-  title = title.replace(/\./g, ' ').trim();
-  title = await getTMDBChineseTitle(title, season, episode);
-}
-
+    // 如果外语标题转换中文开关已开启，则尝试获取中文标题
+    if (globals.titleToChinese) {
+      // 如果title中包含.，则用空格替换
+      title = await getTMDBChineseTitle(title.replace('.', ' '), season, episode);
+    }
 
     log("info", "Parsed title, season, episode", { title, season, episode });
 
