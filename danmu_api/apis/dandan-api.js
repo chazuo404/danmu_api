@@ -458,12 +458,13 @@ export async function matchAnime(url, req) {
     } else {
       // 没有 S##E## 格式，尝试提取第一个片段作为标题
       // 匹配第一个中文/英文标题部分（在年份、分辨率等技术信息之前）
-      const titleRegex = /^([\u4e00-\u9fa5\w\s\-]+?)(?=\s*(?:\d{4}|19\d{2}|20\d{2}|S\d+|E\d+|\d{3,4}p|WEB|BluRay|Blu-ray|HDTV|DVDRip|BDRip|x264|x265|H\.?264|H\.?265|AAC|AC3|DDP|TrueHD|DTS|10bit|HDR|60FPS))/i;
-      const titleMatch = cleanFileName.match(titleRegex);
+      const normalizedName = cleanFileName.replace(/\./g, ' ');
+      const titleRegex = /^([\u4e00-\u9fa5\w\s\-]+?)(?=\s*(?:19\d{2}|20\d{2}|S\d+E\d+|\d{3,4}p|WEB|BluRay|HDTV|x264|x265|AAC|AC3|DDP|DTS))/i;
+      const titleMatch = normalizedName.match(titleRegex);
 
-      title = titleMatch ? titleMatch[1].replace(/[._]/g, ' ').trim() : cleanFileName;
-      season = null;
-      episode = null;
+      title = titleMatch
+      ? titleMatch[1].trim()
+      : normalizedName;
     }
 
     // 如果外语标题转换中文开关已开启，则尝试获取中文标题
