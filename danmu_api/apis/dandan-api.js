@@ -458,7 +458,7 @@ export async function matchAnime(url, req) {
     } else {
       // 没有 S##E## 格式，尝试提取第一个片段作为标题
       // 匹配第一个中文/英文标题部分（在年份、分辨率等技术信息之前）
-      const titleRegex = /^([^.\s]+(?:[.\s][^.\s]+)*?)(?:[.\s](?:\d{4}|(?:19|20)\d{2}|\d{3,4}p|S\d+|E\d+|WEB|BluRay|Blu-ray|HDTV|DVDRip|BDRip|x264|x265|H\.?264|H\.?265|AAC|AC3|DDP|TrueHD|DTS|10bit|HDR|60FPS))/i;
+      const titleRegex = /^([\u4e00-\u9fa5\w\s\-]+?)(?=\s*(?:\d{4}|19\d{2}|20\d{2}|S\d+|E\d+|\d{3,4}p|WEB|BluRay|Blu-ray|HDTV|DVDRip|BDRip|x264|x265|H\.?264|H\.?265|AAC|AC3|DDP|TrueHD|DTS|10bit|HDR|60FPS))/i;
       const titleMatch = cleanFileName.match(titleRegex);
 
       title = titleMatch ? titleMatch[1].replace(/[._]/g, ' ').trim() : cleanFileName;
