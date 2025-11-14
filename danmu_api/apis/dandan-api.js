@@ -450,30 +450,36 @@ export async function matchAnime(url, req) {
 
     let title, season, episode;
 
-    if (match) {
-      // 匹配到 S##E## 格式
-      title = match[1].replace(/[-\s]+$/,'').trim(); // 去掉尾部多余破折号和空格
-      season = parseInt(match[2]);
-      episode = parseInt(match[3]);
-    } else {
-      // 没有 S##E## 格式，尝试提取第一个片段作为标题
-      // 匹配第一个中文/英文标题部分（在年份、分辨率等技术信息之前）
-      const normalizedName = cleanFileName.replace(/\./g, ' ');
-      const titleRegex = /^([\u4e00-\u9fa5\w\s\-]+?)(?=\s*(?:19\d{2}|20\d{2}|S\d+E\d+|\d{3,4}p|WEB|BluRay|HDTV|x264|x265|AAC|AC3|DDP|DTS))/i;
-      const titleMatch = normalizedName.match(titleRegex);
+if (match) {
+  // 匹配到 S##E## 格式
+  title = match[1]
+    .replace(/[-\s]+$/,'') // 去掉尾部破折号或空格
+    .replace(/(\.?(19\d{2}|20\d{2}|[0-9]{3,4}p|WEB|BluRay|Blu-ray|HDTV|DVDRip|BDRip|x264|x265|H\.?264|H\.?265|AAC|AC3|DDP|TrueHD|DTS|10bit|HDR|60FPS))$/i, '') // 去掉年份/分辨率/编码
+    .replace(/\./g, ' ') // 点替换为空格
+    .trim();
 
-      title = titleMatch
-      ? titleMatch[1].trim()
-      : normalizedName;
-    }
+  season = parseInt(match[2]);
+  episode = parseInt(match[3]);
+} else {
+  // 没有 S##E## 格式，尝试提取第一个片段作为标题
+  const normalizedName = cleanFileName.replace(/\./g, ' ');
 
-    // 如果外语标题转换中文开关已开启，则尝试获取中文标题
-    if (globals.titleToChinese) {
-      // 如果title中包含.，则用空格替换
-      title = title.replace(/([.\s_]*(19\d{2}|20\d{2}|[0-9]{3,4}p|WEB|BluRay|Blu-ray|HDTV|DVDRip|BDRip|x264|x265|H\.?264|H\.?265|AAC|AC3|DDP|TrueHD|DTS|10bit|HDR|60FPS|S\d+E\d+|[a-zA-Z]+))$/i, '').trim();
-      title = await getTMDBChineseTitle(title.replace(/\./g, ' '), season, episode);
+  // 匹配中文/英文标题，直到年份、分辨率、编码或 SxxEyy
+  const titleRegex = /^([\u4e00-\u9fa5\w\s\-]+?)(?=\s*(?:19\d{2}|20\d{2}|\d{3,4}p|WEB|BluRay|HDTV|x264|x265|AAC|AC3|DDP|DTS|S\d+E\d+))/i;
+  const titleMatch = normalizedName.match(titleRegex);
 
-    }
+  title = titleMatch ? titleMatch[1].trim() : normalizedName;
+  season = null;
+  episode = null;
+}
+
+// 如果外语标题转换中文开关已开启，则尝试获取中文标题
+if (globals.titleToChinese) {
+  // 只替换点，不去掉其他信息（保留 SxxEyy）
+  title = title.replace(/\./g, ' ').trim();
+  title = await getTMDBChineseTitle(title, season, episode);
+}
+
 
     log("info", "Parsed title, season, episode", { title, season, episode });
 
