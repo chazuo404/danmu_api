@@ -452,7 +452,7 @@ export async function matchAnime(url, req) {
 
     if (match) {
       // 匹配到 S##E## 格式
-      title = match[1].trim();
+      title = match[1].replace(/[-\s]+$/,'').trim(); // 去掉尾部多余破折号和空格
       season = parseInt(match[2]);
       episode = parseInt(match[3]);
     } else {
